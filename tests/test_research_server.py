@@ -1,74 +1,68 @@
 import json
-
 import pytest
-
-from mcp.shared.memory import (
-    create_connected_server_and_client_session,
-)
 
 from app.mcp.research_server import mcp
 
 
 def extract_tool_result(result) -> dict:
     """Extract the JSON payload returned by an MCP tool."""
-    assert not result.isError
+    assert not result.is_error
     assert result.content
 
     text = result.content[0].text
     return json.loads(text)
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 async def test_search_sources():
-    async with create_connected_server_and_client_session(
-        mcp._mcp_server
-    ) as session:
-        await session.initialize()
+    result = await mcp.call_tool(
+        "search_sources",
+        {"query": "agentic AI"},
+    )
 
-        result = await session.call_tool(
-            "search_sources",
-            {"query": "agentic AI"},
-        )
+    data = extract_tool_result(result)
 
-        data = extract_tool_result(result)
-
-        assert data["query"] == "agentic AI"
-        assert data["results"]
-        assert data["results"][0]["id"] == "doc-002"
+    assert data["query"] == "agentic AI"
+    assert data["results"]
+    assert data["results"][0]["id"] == "doc-002"
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 async def test_get_source():
-    async with create_connected_server_and_client_session(
-        mcp._mcp_server
-    ) as session:
-        await session.initialize()
+    result = await mcp.call_tool(
+        "get_source",
+        {"source_id": "doc-002"},
+    )
 
-        result = await session.call_tool(
-            "get_source",
-            {"source_id": "doc-002"},
-        )
+    data = extract_tool_result(result)
 
-        data = extract_tool_result(result)
-
-        assert data["id"] == "doc-002"
-        assert data["title"] == "Agentic AI Systems"
-        assert "agentic ai" in data["content"].lower()
+    assert data["id"] == "doc-002"
+    assert data["title"] == "Agentic AI Systems"
+    assert "agentic ai" in data["content"].lower()
 
 
-@pytest.mark.anyio
+@pytest.mark.asyncio
 async def test_missing_source():
-    async with create_connected_server_and_client_session(
-        mcp._mcp_server
-    ) as session:
-        await session.initialize()
+    result = await mcp.call_tool(
+        "get_source",
+        {"source_id": "does-not-exist"},
+    )
 
-        result = await session.call_tool(
-            "get_source",
-            {"source_id": "does-not-exist"},
-        )
+    data = extract_tool_result(result)
 
-        data = extract_tool_result(result)
+    assert "error" in data
+    assert "not found" in data["error"].lower()
 
-        assert "error" in data
-        assert "not found" in data["error"].lower()
+
+@pytest.mark.asyncio
+async def test_extract_claims():
+    result = await mcp.call_tool(
+        "extract_claims",
+        {"text": "RAG enhances LLM outputs. Agentic systems plan and act autonomously!"},
+    )
+
+    data = extract_tool_result(result)
+
+    assert data["count"] == 2
+    assert len(data["claims"]) == 2
+    assert "RAG enhances LLM outputs" in data["claims"][0]

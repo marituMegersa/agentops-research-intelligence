@@ -1,7 +1,7 @@
-from mcp.server.fastmcp import FastMCP
+from mcp.server.mcpserver import MCPServer
 
 
-mcp = FastMCP(
+mcp = MCPServer(
     "research-server",
 )
 
