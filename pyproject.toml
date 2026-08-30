@@ -1,0 +1,19 @@
+[project]
+name = "agentic-research-intelligence"
+version = "0.1.0"
+description = "A production-oriented multi-agent research and decision intelligence platform."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
