@@ -218,14 +218,14 @@ agentic-research-intelligence/
 * [x] Verification agent
 * [x] Synthesis agent
 
-### Phase 4 — Agent Intelligence
+### Phase 4 — Agent Intelligence & Memory
 
-* [ ] Tool selection
-* [ ] Agent handoffs
-* [ ] Short-term memory
-* [ ] Long-term memory
-* [ ] Failure recovery
-* [ ] Human-in-the-loop approval
+* [x] Dynamic tool selection & registry
+* [x] Agent handoffs & state machine
+* [x] Short-term session scratchpad memory
+* [x] Long-term episodic vector memory
+* [x] Failure recovery & query reformulation
+* [x] Human-in-the-loop (HITL) approval workflows
 
 ### Phase 5 — Evaluation & Observability
 
