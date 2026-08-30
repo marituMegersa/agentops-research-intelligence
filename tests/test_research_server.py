@@ -78,7 +78,7 @@ async def test_ingest_and_record_evidence():
         {
             "title": "Autonomous Decision Making",
             "content": "Autonomous decision making requires rigorous evaluation benchmarks. Tracing tool steps ensures observability.",
-            "metadata": {"author": "Habtamu"},
+            "metadata": {"author": "marituMegersa"},
         },
     )
     ingest_data = extract_tool_result(ingest_res)
