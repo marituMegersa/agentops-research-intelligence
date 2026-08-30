@@ -202,12 +202,12 @@ agentic-research-intelligence/
 
 ### Phase 2 — Retrieval
 
-* [ ] Document ingestion
-* [ ] Embeddings
-* [ ] Vector database
-* [ ] Semantic search
-* [ ] Reranking
-* [ ] Evidence management
+* [x] Document ingestion
+* [x] Embeddings
+* [x] Vector database
+* [x] Semantic search
+* [x] Reranking (Reciprocal Rank Fusion hybrid search)
+* [x] Evidence management
 
 ### Phase 3 — Agent Orchestration
 

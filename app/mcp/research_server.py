@@ -1,12 +1,25 @@
+"""FastMCP Research Server powered by dynamic hybrid vector retrieval and evidence tracking."""
+
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional
 from mcp.server.mcpserver import MCPServer
 
+from app.retrieval.evidence import EvidenceManager
+from app.retrieval.ingestion import DocumentIngestor, TextSplitter
+from app.retrieval.models import Document, VerificationStatus
+from app.retrieval.vector_store import VectorStore
 
 mcp = MCPServer(
     "research-server",
 )
 
+# Initialize Core Retrieval & Evidence Infrastructure
+vector_store = VectorStore()
+ingestor = DocumentIngestor(text_splitter=TextSplitter(chunk_size=300, chunk_overlap=50))
+evidence_manager = EvidenceManager(vector_store=vector_store)
 
-DOCUMENTS = [
+DEFAULT_DOCUMENTS = [
     {
         "id": "doc-001",
         "title": "Introduction to Retrieval-Augmented Generation",
@@ -34,66 +47,108 @@ DOCUMENTS = [
 ]
 
 
+def _seed_documents():
+    """Seed initial research documents into the dynamic vector store."""
+    for item in DEFAULT_DOCUMENTS:
+        doc = Document(id=item["id"], title=item["title"], content=item["content"])
+        chunks = ingestor.ingest_document(doc)
+        vector_store.add_documents([doc], chunks)
+
+
+_seed_documents()
+
+
 @mcp.tool()
 def search_sources(query: str, limit: int = 5) -> dict:
-    """Search the research knowledge source."""
-
-    query_terms = query.lower().split()
-    results = []
-
-    for document in DOCUMENTS:
-        text = (
-            f"{document['title']} {document['content']}"
-        ).lower()
-
-        score = sum(term in text for term in query_terms)
-
-        if score > 0:
-            results.append(
-                {
-                    "id": document["id"],
-                    "title": document["title"],
-                    "score": score,
-                }
-            )
-
-    results.sort(
-        key=lambda item: item["score"],
-        reverse=True,
-    )
+    """Search research sources using hybrid semantic vector and keyword search."""
+    results = vector_store.search_hybrid(query=query, limit=limit)
+    formatted = [
+        {
+            "id": r.document_id,
+            "chunk_id": r.chunk_id,
+            "title": r.title,
+            "text": r.text,
+            "score": round(r.score, 4),
+        }
+        for r in results
+    ]
 
     return {
         "query": query,
-        "results": results[:limit],
+        "results": formatted,
     }
 
 
 @mcp.tool()
 def get_source(source_id: str) -> dict:
     """Retrieve a research source by its identifier."""
+    doc = vector_store.get_document(source_id)
+    if doc:
+        return {
+            "id": doc.id,
+            "title": doc.title,
+            "content": doc.content,
+            "metadata": doc.metadata,
+        }
 
-    for document in DOCUMENTS:
-        if document["id"] == source_id:
-            return document
+    return {"error": f"Source '{source_id}' was not found."}
+
+
+@mcp.tool()
+def ingest_source(title: str, content: str, metadata: Optional[Dict[str, Any]] = None) -> dict:
+    """Ingest and index a new research document into the vector store."""
+    doc = Document(title=title, content=content, metadata=metadata or {})
+    chunks = ingestor.ingest_document(doc)
+    vector_store.add_documents([doc], chunks)
 
     return {
-        "error": f"Source '{source_id}' was not found."
+        "id": doc.id,
+        "title": doc.title,
+        "chunks_indexed": len(chunks),
+        "status": "indexed",
     }
 
 
 @mcp.tool()
 def extract_claims(text: str) -> dict:
-    """Extract candidate claims from research text."""
+    """Extract candidate factual claims from text."""
+    claims = evidence_manager.extract_claims_from_text(text)
+    return {
+        "claims": [c.text for c in claims],
+        "claim_objects": [c.model_dump() for c in claims],
+        "count": len(claims),
+    }
 
-    sentences = [
-        sentence.strip()
-        for sentence in text.replace("!", ".").split(".")
-        if sentence.strip()
-    ]
+
+@mcp.tool()
+def record_evidence(
+    claim_id: str,
+    source_id: str,
+    chunk_id: str,
+    quote: str,
+    status: str = "verified",
+) -> dict:
+    """Record evidence linking a claim to a source citation."""
+    verif_status = (
+        VerificationStatus.VERIFIED
+        if status.lower() == "verified"
+        else VerificationStatus.CONTRADICTED
+    )
+    evidence = evidence_manager.attach_evidence(
+        claim_id=claim_id,
+        source_id=source_id,
+        chunk_id=chunk_id,
+        quote=quote,
+        status=verif_status,
+    )
+    if not evidence:
+        return {"error": f"Claim '{claim_id}' not found."}
 
     return {
-        "claims": sentences,
-        "count": len(sentences),
+        "evidence_id": evidence.id,
+        "claim_id": claim_id,
+        "status": evidence.status.value,
+        "similarity_score": round(evidence.similarity_score, 4),
     }
 
 
