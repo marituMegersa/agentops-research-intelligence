@@ -4,9 +4,9 @@
 
 ## 🚧 Project Status
 
-**Early development — Milestone 1**
+**Milestone 3 Completed — Multi-Agent Orchestration with LangGraph & Hybrid Vector Retrieval**
 
-The project is being developed incrementally from a working MCP research tool layer toward a complete agentic research and decision intelligence platform.
+The platform now features dynamic vector retrieval, claim evidence verification, and multi-agent execution graphs.
 
 ## Overview
 
