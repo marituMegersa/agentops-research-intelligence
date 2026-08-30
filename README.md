@@ -5,8 +5,7 @@
 
 [![Python Version](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![LangGraph](https://img.shields.io/badge/Orchestrator-LangGraph-FF6F00?style=for-the-badge&logo=chainlink&logoColor=white)](https://langchain-ai.github.io/langgraph/)
-[![Model Context Protocol](https://img.shields.io/badge/Protocol-MCP%202.x-009688?style=for-the-badge)](https://modelcontextprotocol.io/)
-[![Pytest Suite](https://img.shields.io/badge/Tests-20%2F20%20Passing-success?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org)
+[![Pytest Suite](https://img.shields.io/badge/Tests-24%2F24%20Passing-success?style=for-the-badge&logo=pytest&logoColor=white)](https://pytest.org)
 [![License: MIT](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 <p align="center">
@@ -257,14 +256,12 @@ agentops-research-intelligence/
 ### ✅ Phase 4 — Agent Intelligence & Memory
 * [x] Dynamic `ToolRegistry` with automatic schema introspection & intent routing
 * [x] `ShortTermMemory` scratchpad reasoning
-* [x] `LongTermMemory` episodic vector recall
-* [x] `QueryReformulator` & `FallbackExecutor` self-healing mechanisms
-* [x] `HITLOrchestrator` human-in-the-loop review checkpoints
-
-### ⏳ Phase 5 — Evaluation & Observability *(In Progress)*
-* [ ] Benchmark dataset for research tasks
-* [ ] RAG Triad evaluation: Context Precision, Faithfulness & Answer Relevancy
-* [ ] Execution trace tracking, latency, and token cost profiling
+### ✅ Phase 5 — Evaluation & Observability Suite
+* [x] Standardized research benchmark dataset (`BenchmarkDataset`)
+* [x] RAG Triad evaluation: Context Precision, Context Recall, Faithfulness & Answer Relevancy
+* [x] Citation integrity & provenance verification metrics
+* [x] OpenTelemetry-aligned span tracing (`ExecutionTracer`) & latency profiling
+* [x] Automated benchmark runner & scorecard generator (`EvaluationRunner`)
 
 ### ⏳ Phase 6 — Production & Deployment
 * [ ] FastAPI REST API gateway
