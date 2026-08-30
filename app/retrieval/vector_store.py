@@ -92,7 +92,10 @@ class VectorStore:
         for chunk in chunks:
             self.chunks[chunk.id] = chunk
             if chunk.embedding is None:
-                texts_to_embed.append(chunk.text)
+                doc = self.documents.get(chunk.document_id)
+                title = doc.title if doc else chunk.metadata.get("title", "")
+                text_content = f"{title} {chunk.text}" if title else chunk.text
+                texts_to_embed.append(text_content)
                 chunks_to_embed.append(chunk)
 
         if texts_to_embed:
@@ -163,7 +166,10 @@ class VectorStore:
             if document_id and chunk.document_id != document_id:
                 continue
 
-            chunk_terms = re.findall(r"\w+", chunk.text.lower())
+            doc = self.documents.get(chunk.document_id)
+            title = doc.title if doc else chunk.metadata.get("title", "")
+            searchable_text = f"{title} {chunk.text}"
+            chunk_terms = re.findall(r"\w+", searchable_text.lower())
             if not chunk_terms:
                 continue
 
